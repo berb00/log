@@ -1,0 +1,116 @@
+# shell package
+
+## node
+
+```text
+    一、下载node安装包
+    1、wget https://npm.taobao.org/mirrors/node/v10.16.3/node-v10.16.3-linux-x64.tar.xz
+    二、解压
+    1、tar -xvf node-v10.16.3-linux-x64.tar.xz
+    三、添加链接
+    1、ln -s ./node-v10.16.3-linux-x64/bin/node /usr/local/bin/node
+    2、ln -s ./node-v10.16.3-linux-x64/bin/npm /usr/local/bin/npm
+    3、安装pm2（如果不知道pm2干啥的自行百度）
+    　　npm install -g pm2 这里安装之后需要指定软连接
+    　　ln -s ./node-v10.16.3-linux-x64/bin/pm2 /usr/local/bin/pm2
+    bash echo -e "export PATH=$(npm prefix -g)/bin:$PATH" >> ~/.bashrc && source ~/.bashrc
+```
+
+## python
+
+```text
+    $ curl -O https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tgz
+    最后一步，编译安装Python3，默认的安装目录是 /usr/local 如果你要改成其他目录可以在编译(make)前使用 configure 命令后面追加参数 “–prefix=/alternative/path” 来完成修改。
+    $ tar xf Python-3.7.4.tgz
+    $ cd Python-3.7.4
+    $ ./configure
+    $ make
+    $ sudo make install
+    至此你已经在你的CentOS系统中成功安装了python3、pip3、setuptools，查看python版本
+
+    如果你要使用Python3作为python的默认版本，你需要修改一下 bashrc 文件，增加一行alias参数
+    alias python='/usr/local/bin/python3.5'
+    由于CentOS 7建议不要动/etc/bashrc文件，而是把用户自定义的配置放入/etc/profile.d/目录中，具体方法为
+
+    vi /etc/profile.d/python.sh
+    输入alias参数 alias python=’/usr/local/bin/python3.5’，保存退出
+
+    如果非root用户创建的文件需要注意设置权限
+
+    chmod 755 /etc/profile.d/python.sh
+    重启会话使配置生效
+
+    source /etc/profile.d/python.sh
+```
+
+## java环境
+
+```text
+    vim /etc/profile
+        JAVA_HOME=/usr/local/java/jdk-12.0.2  
+        CLASS_PATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib
+        PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
+        export JAVA_HOME JRE_HOME CLASS_PATH PATH
+    source /etc/profile
+```
+
+## url
+
+```text
+    http://nginx.org/download/nginx-1.17.3.tar.gz
+
+    http://mirror.bit.edu.cn/apache/tomcat/tomcat-9/v9.0.24/bin/apache-tomcat-9.0.24.tar.gz
+
+    http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.33-linux-glibc2.5-x86_64.tar.
+
+```
+
+## yum package
+
+```shell
+    yum install -y vim
+    yum install -y net-tools                # ifconfig
+    yum install -y lrzsz                    # 上传下载工具
+
+
+    1、安装gcc套装：
+        yum install cpp
+        yum install binutils
+        yum install glibc
+        yum install glibc-kernheaders
+        yum install glibc-common
+        yum install glibc-devel
+        yum install gcc
+        yum install make
+    2、升级gcc
+        yum -y install centos-release-scl
+        yum -y install devtoolset-9-gcc devtoolset-9-gcc-c++ devtoolset-9-binutilsscl enable devtoolset-9 bash
+    
+    安装RHEL/Centos7默认的开发工具，包含gcc，g++,make等等一系列工具：
+        yum groupinstall "Development Tools"
+
+
+```
+
+## package list
+
+```text
+    etcd        提供配置共享和服务发现 golang编写 key-value数据库
+    Zookeeper   提供配置共享和服务发现
+
+
+    使用场景
+        配置管理
+        服务注册发现
+        选主
+        应用调度
+        分布式队列
+        分布式锁
+
+
+
+
+
+
+
+```

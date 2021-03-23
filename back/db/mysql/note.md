@@ -1,0 +1,667 @@
+# MySQL note
+
+## sql type
+
+type | word | comment | function
+-|-|-|-
+SQL(Structure Query Language)   | -                     | 结构化查询语言|-|-
+DDL(Data Defination Language)   | DROP CREATE ALTER     | 数据定义语言  |定义数据库、表、视图、索引、触发器.
+DML(Data Manipulation Language) | INSERT UPDATE DELETE  | 数据操作语言  |增删改
+DQL(Data Query Language)        | SELECT                | 数据检索语言  |用于从表中获取数据 确定数据怎样在应用程序中给出
+DCL(Data Control Language)      | GRANT REVOKE COMMIT ROLLBACK  | 数据控制语言  |控制用户访问权限
+
+```text
+SQL(Structure Query Language)       结构化查询语言
+DDL(Data Defination Language)       数据定义语言      定义数据库、表、视图、索引、触发器。    DROP CREATE ALTER
+DML(Data Manipulation Language)     数据操作语言      增删改      INSERT UPDATE DELETE
+DQL(Data Query Language)            数据检索语言      用于从表中获取数据 确定数据怎样在应用程序中给出    SELECT
+DCL(Data Control Language)          数据控制语言      控制用户访问权限        GRANT REVOKE COMMIT ROLLBACK
+
+
+```
+
+## 登陆、退出
+
+```text
+    mysql -uroot -p
+    mysql -h localhost -u root -p
+    -u,--username=name,用户名
+    -p,--password=pwd,密码
+    -h,--host=name,服务器名
+    -P,--port=#,端口号
+    -D,--database=name,打开指定数据库
+    --prompt=name,设置命令提示符        只针对当前页面有效        默认为mysql>
+    --delimiter=name,指定分隔符
+    -V,--version,输出版本信息并退出
+    mysql -u+username
+
+    exit
+    quit
+    \q
+    Ctrl+c 强制退出
+```
+
+## 配置文件
+
+```shell
+    mysql --verbose --help | grep my.cnf        # 查看mysql.cnf可能位置
+    vim /etc/my.cnf                             # linux
+    vim /usr/local/etc/my.cnf                   # mac
+```
+
+## 重置mysql密码
+
+```text
+    1.跳过MySQL密码认证过程
+        vim /etc/my.cnf          // 打开配置文件
+        在文件末尾添加:
+            skip-grant-tables    // 跳过密码验证
+            skip-name-resolve    // 禁止MySQL Server 对外部链接进行DNS解析,可以消除MySQL进行DNS解析的时间。但是如果开启了该选项,那么所有的远程主机连接授权都要使用IP地址,否则MySQL无法正常处理连接请求。
+    2.重启MySQL
+        方式一: /etc/init.d/mysqld restart
+        方式二: service mysqld restart
+    3.# mysql                   // 进入mysql
+        mysql -u root -p
+    4.mysql>use mysql;
+      mysql>update user set authentication_string='' where user='root'; // 置空密码
+      mysql>alter user 'root'@'localhost' identified by '新密码';
+      mysql>flush privileges;
+      mysql>quit;
+    5.删除配置文件 添加的跳过验证配置
+    6.重启MySQL
+
+    另一种未验证的方法:update user set password=password(“xueok654123”) where user=’root’;
+
+    =============================================
+    # 一、停止mysql服务
+    service mysql stop          # 方式一
+    /etc/inint.d/mysql stop     # 方式二
+    mysqladmin shutdown         # 方式三
+
+    # 二、使用无验证方式打开mysql
+    mysqld --skip-grant-tables
+
+    # 三、打开一个新终端
+    mysql   # 直接enter键
+
+    # 四、修改root 用户密码
+    SET PASSWORD FOR 'root'@'hostname' = PASSWORD('newpassword');
+
+    # 五、重启mysql服务
+    service mysql restart       # 方式一
+    /etc/inint.d/mysql restart  # 方式二
+
+    # 六、使用新密码登陆
+
+```
+
+## MySQL安装及配置
+
+```text
+    
+    aliyun安装步骤:
+        https://www.alibabacloud.com/help/zh/doc-detail/178136.htm
+    1.安装yum源
+        rpm -Uvh  http://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+    
+    目录:
+        bin                 存储可执行文件
+        data                存储数据文件
+        include             存储包含的头文件
+        lib                 存储库文件
+        docs                文档
+        share               错误消息及字符集文件
+        my.ini              配置文件---设置字符集 客户端字符集[mysql]:default-character-set=utf8
+                            服务端字符集[mysqld]:character-set-server=utf8
+```
+
+## 导入
+
+```shell
+    # /Users/berb00/Desktop/gitee/Log/
+    # 选中数据库状态下 当导入的sql文件很大时(>200M): my.ini文件,设置max_allowed_packet的值1024M
+
+    # 导入表至数据库(不含建库语句)
+    mysql -u username -p -D db < backup.sql # 方式一
+    mysql>source backup.sql;                # 方式二 绝对路径
+
+    # 导入新的数据库(含建库语句)
+    mysql -u username -p < backup.sql       # 方式一
+    mysql>source backup.sql;                # 方式二 (绝对路径)
+
+    # 恢复数据库(未成功)
+    mysqladmin -h host -uroot -p create db
+    mysqldump -h host -uroot -p db < backup.sql
+
+```
+
+## 导出
+
+```shell
+    # 导出数据库
+    # /Users/berb00/Desktop/gitee/sql/demo/myemployees.sql
+
+    mysqldump -uroot -p db > backup.sql                         # 导出一个数据库中所有的表(数据+结构)
+    mysqldump -uroot -p db tb> backup.sql                       # 导出一个数据库中指定的表(数据+结构)
+
+    mysqldump -uroot -p --no-data db > backup.sql               # 导出一个数据库中指定的表结构
+    mysqldump -uroot -p -d db > backup.sql                      # 导出一个数据库中指定的表结构
+
+    mysqldump -uroot -p --databases db > backup.sql              # 导出一个数据库(数据+结构)
+    mysqldump -uroot -p --databases db1 db2 > backup.sql         # 导出指定数据库(数据+结构)
+
+    mysqldump -uroot -p --all-databases > backup.sql            # 备份MySQL服务器上的所有数据库
+    mysqldump -uroot -p --databases db | gzip > backup.sql.gz    # 压缩导出
+
+
+    –default-character-set=latin1   # 数据库默认编码是latin1
+    --databases                     # 导出数据库(导出建库语句)
+    -d                              # 只导出结构 不导出数据
+    --add-drop-table                # 在每个create语句之前增加一个drop table
+
+```
+
+## Storage Engine
+
+```text
+    InnoDB          支持外键约束 支持事物处理 支持并发控制     效率低 占用空间大(默认)      文件名和表明相同:.frm-存储表结构
+    MyISAM          插入速度快 占用内存低                   不支持事物处理 速度快        文件名和表明相同:.frm-存储表结构 .MYD-存储数据 .MYI-存储索引
+    ndbcluster
+    MEMORY          数据存储在内存 不安全 速度快 .frm
+    EXAMPLE
+    FADERATED
+    ARCHIVE
+    CSV
+    BLACKHOLE
+    infinidb
+    IBMDB2I
+    Brighthouse
+    KFDB
+    ScaleDB
+    TokuDB
+    XtraDB
+    Spider
+    Mroonga
+    MRG_MyISAM
+    Aria
+    PBXT
+```
+
+## Tips
+
+```text
+    # 登陆host会在/etc/hosts中查找 找不到 error:1045
+    # 库名都是小写的
+    # mysql库很重要它里面有MYSQL的系统信息,我们改密码和新增用户,实际上就是用这个库进行操作。
+    # 当直接改变mysql表时,改变的权限不会立即生效,MySQL需要重新读授权表。可以通过使用flush privileges,mysqkadmin flush-priviledges等。
+    # + 只是运算符 不是连接符(只能做算数运算 不能做字符串拼接  字符串参与加号时,先转换为数字再加,不能转为数字则为0,再进行加法运算,null参与加法结果为null)
+
+    shell> mysqladmin -u root -p -d databasename > a.sql            卸出建表指令
+    shell> mysqladmin -u root -p -t databasename > a.sql            卸出插入数据的sql命令,而不需要建表命令
+    shell> mysqldump -T./ phptest driver                            只想要数据,而不想要什么sql命令
+    -T: 卸出纯文本文件,表示卸出数据的目录,
+    ./: 当前目录,即与mysqldump同一目录。
+    如果不指定driver表,则将卸出整个数据库的数据。
+    每个表会生成两个文件,一个为.sql文件,包含建表执行。另一个为.txt文件,只包含数据,且没有sql指令。
+    可将查询存储在一个文件中并告诉mysql从文件中读取查询而不是等待键盘输入。可利用外壳程序键入重定向实用程序来完成这项工作。
+
+    'change'不能作为字段 会报错
+```
+
+## 数据类型
+
+```text
+    1.INT
+        TINYINT                        1byte   (-2^7~2^7-1)(0~2^8-1)                TINYINT UNSIGNED-无符号
+        SMALLINT                2byte   (-2^15~2^15-1)(0~2^16-1)
+        MEDIUMINT                3byte   (-2^23~2^13-1)(0~2^24)
+        INT                                4byte   (-2^51~2^51-1)(0~2^52-1)
+        BIGINT                        8byte   (-2^63~2^63)(0~2^64-1)
+        TINYINT(1)          1byte   ,0为false 非0为true          // 等价于BOOL(MySQL中无bool类型)
+        零填充:
+        TINYINT ZEROFILL -默认无符号自动加上UNSIGNED   达不到显示长度左侧补满0
+
+    2.FLOAT
+        FLOAT[(M,D)]        4byte                M-数字总位数 D-小数点后的位数   存在精度问题
+        DOUBLE[(M,D)]   8byte       存在精度问题
+        DECIMAL[(M,D)]  M+2byte                内部以字符串形式存储(不存在精度问题、可以比较大小) 不会四舍五入 定点数
+
+    3.String
+        CHAR(M)                        M+1byte                        (0~255)B                定长字符串  M个字符 不保存字符串尾部空格
+        VARCHAR(M)                                            (0~65535)B            变长字符串  保存字符串尾部空格
+        TINYTEXT                                                (0~2^8)B
+        TEXT                                                        (0~2^16)B       只保存字符数据 且不能有默认值
+        MEDIUMTEXT                                            (0~2^24)B
+        LONGTEXT                                                (0~2^32)B
+        ENUM('value1','value2',...)            1或2B 枚举值个数最多65535个                    枚举-只可选一个值   插入值时可以插入value1等字符串 也可以插入从1开始对应对的序号
+        SET('value1','value2',...)            1、2、3、4、8B SET成员数目最多64         集合-可选多个值
+
+    4.Date
+        TIME                3B          保存时间    09:34:56
+        DATE                3B          保存日期    2009-11-9
+        DATETIME            8B          保存日期时间 2009-11-9 09:34:56
+        TIMESTAMP                        4B                        保存时间戳(字符串形式)
+        YEAR                                1B          保存年      1901~2155
+
+    5.二进制类型
+```
+
+## 数据引擎
+
+```text
+    +--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+    | Engine             | Support | Comment                                                        | Transactions | XA   | Savepoints |
+    +--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+    | ARCHIVE            | YES     | Archive storage engine                                         | NO           | NO   | NO         |
+    | BLACKHOLE          | YES     | /dev/null storage engine (anything you write to it disappears) | NO           | NO   | NO         |
+    | MRG_MYISAM         | YES     | Collection of identical MyISAM tables                          | NO           | NO   | NO         |
+    | FEDERATED          | NO      | Federated MySQL storage engine                                 | NULL         | NULL | NULL       |
+    | MyISAM             | YES     | MyISAM storage engine                                          | NO           | NO   | NO         |
+    | PERFORMANCE_SCHEMA | YES     | Performance Schema                                             | NO           | NO   | NO         |
+    | InnoDB             | DEFAULT | Supports transactions, row-level locking, and foreign keys     | YES          | YES  | YES        |
+    | MEMORY             | YES     | Hash based, stored in memory, useful for temporary tables      | NO           | NO   | NO         |
+    | CSV                | YES     | CSV storage engine                                             | NO           | NO   | NO         |
+    +--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+        Engine: ARCHIVE                   // 引擎名
+        Support: YES                       // MySQL是否支持
+        Comment: Archive storage engine    // 注释
+    Transactions: NO                      // 是否支持事物处理
+            XA: NO                        // 是否是分布式交易处理XA规范
+    Savepoints: NO                        // 是否支持保存点(可以回滚到保存点)
+
+    InnoDB                                // 仅该引擎支持外键约束 支持事物处理 具有崩溃修复能力、并发控制  表结构存储在.frm文件 读写效率低 占用数据空间大  数据存储在innodb  索引
+    MyISAM                                // 支持三种存储格式: 静态型(default)、动态型、压缩型。 占用空间小 处理速度快。 不支持事物,没有事物的完整性、安全性、并发性
+    MEMORY                                // 存储在内存中 提高表的处理效率    默认hash索引 用的少  生命周期短 表不能过大
+
+杂
+        1.INT[(M)] 型： 正常大小整数类型
+        2.DOUBLE[(M,D)] [ZEROFILL] 型： 正常大小(双精密)浮点数字类型
+        3.DATE 日期类型：支持的范围是1000-01-01到9999-12-31。MySQL以YYYY-MM-DD
+        格式来显示DATE值,但是允许你使用字符串或数字把值赋给DATE列
+        4.CHAR(M) 型：定长字符串类型,当存储时,总是是用空格填满右边到指定的长度
+        5.BLOB TEXT类型,最大长度为65535(2^16-1)个字符。
+        6.VARCHAR型：变长字符串类型
+        5.导入数据库表
+        (1)创建.sql文件
+        (2)先产生一个库如auction.c:mysqlbin>mysqladmin -u root -p creat auction,会提示输入密码,然后成功创建。
+        (2)导入auction.sql文件
+        c:mysqlbin>mysql -u root -p auction < auction.sql。
+        通过以上操作,就可以创建了一个数据库auction以及其中的一个表auction。
+        6.修改数据库
+        (1)在mysql的表中增加字段：
+        alter table dbname add column userid int(11) not null primary key
+        auto_increment;
+        这样,就在表dbname中添加了一个字段userid,类型为int(11)。
+        7.mysql数据库的授权
+        mysql>grant select,insert,delete,create,drop
+        on *.* (或test.*/user.*/..)
+        to 用户名@localhost
+        identified by ‘密码’;
+        如：新建一个用户帐号以便可以访问数据库,需要进行如下操作：
+        mysql> grant usage
+        -> ON test.*
+        -> TO testuser@localhost;
+        Query OK, 0 rows affected (0.15 sec)
+        此后就创建了一个新用户叫：testuser,这个用户只能从localhost连接到数
+        据库并可以连接到test 数据库。下一步,我们必须指定testuser这个用户可以执
+        行哪些操作：
+        mysql> GRANT select, insert, delete,update
+        -> ON test.*
+        -> TO testuser@localhost;
+        Query OK, 0 rows affected (0.00 sec)
+        此操作使testuser能够在每一个test数据库中的表执行Select,Insert和
+        Delete以及Update查询操作。现在我们结束操作并退出MySQL客户程序：
+        mysql> exit
+        Bye9!
+
+        1:使用SHOW语句找出在服务器上当前存在什么数据库：
+        mysql> SHOW DATABASES;
+        2:2、创建一个数据库MYSQLDATA
+        mysql> Create DATABASE MYSQLDATA;
+        3:选择你所创建的数据库
+        mysql> USE MYSQLDATA; (按回车键出现Database changed 时说明操作成功!)
+        4:查看现在的数据库中存在什么表
+        mysql> SHOW TABLES;
+        5:创建一个数据库表
+        mysql> Create TABLE MYTABLE (name VARCHAR(20), sex CHAR(1));
+        6:显示表的结构：
+        mysql> DESCRIBE MYTABLE;
+        7:往表中加入记录
+        mysql> insert into MYTABLE values (“hyq”,”M”);
+        8:用文本方式将数据装入数据库表中(例如D:/mysql.txt)
+        mysql> LOAD DATA LOCAL INFILE “D:/mysql.txt” INTO TABLE MYTABLE;
+        9:导入.sql文件命令(例如D:/mysql.sql)
+        mysql>use database;
+        mysql>source d:/mysql.sql;
+        10:删除表
+        mysql>drop TABLE MYTABLE;
+        11:清空表
+        mysql>delete from MYTABLE;
+        12:更新表中数据
+        mysql>update MYTABLE set sex=”f” where name=’hyq’;
+
+        在windows中MySql以服务形式存在,在使用前应确保此服务已经启动,未启动可用net start mysql命令启动。而Linux中启动时可用”/etc/rc.d/init.d/mysqld start”命令,注意启动者应具有管理员权限。
+        刚安装好的MySql包含一个含空密码的root帐户和一个匿名帐户,这是很大的安全隐患,对于一些重要的应用我们应将安全性尽可能提高,在这里应把匿名帐户删除、 root帐户设置密码,可用如下命令进行：
+        use mysql;
+        delete from User where User=””;
+        update User set Password=PASSWORD(‘newpassword’) where User=’root’;
+        如果要对用户所用的登录终端进行限制,可以更新User表中相应用户的Host字段,
+        在进行了以上更改后应重新启动数据库服务,此时登录时可用如下类似命令：
+        mysql -uroot -p;
+        mysql -uroot -pnewpassword;
+        mysql mydb -uroot -p;
+        mysql mydb -uroot -pnewpassword;
+        上面命令参数是常用参数的一部分,详细情况可参考文档。此处的mydb是要登录的
+        数据库的名称。
+        在进行开发和实际应用中,用户不应该只用root用户进行连接数据库,虽然使用
+        root用户进行测试时很方便,但会给系统带来重大安全隐患,也不利于管理技术的
+        提高。我们给一个应用中使用的用户赋予最恰当的数据库权限。如一个只进行数据
+        插入的用户不应赋予其删除数据的权限。MySql的用户管理是通过 User表来实现的
+        ,添加新用户常用的方法有两个,一是在User表插入相应的数据行,同时设置相应
+        的权限;二是通过GRANT命令创建具有某种权限的用户。其中GRANT的常用用法如下
+        ：
+        grant all on mydb.* to NewUserName@HostName identified by “password” ;
+        grant usage on *.* to NewUserName@HostName identified by “password”;
+        grant select,insert,update on mydb.* to NewUserName@HostNameidentified
+        by “password”;
+        grant update,delete on mydb.TestTable to NewUserName@HostNameidentified
+        by “password”;
+        若要给此用户赋予他在相应对象上的权限的管理能力,可在GRANT后面添加WITH
+        GRANT OPTION选项。而对于用插入User表添加的用户,Password字段应用PASSWORD
+        函数进行更新加密,以防不轨之人窃看密码。对于那些已经不用的用户应给予清除
+        ,权限过界的用户应及时回收权限,回收权限可以通过更新User表相应字段,也可
+        以使用REVOKE操作。
+        下面给出本人从其它资料(http://www.cn-java.com/)获得的对常用权限的解释：
+        全局管理权限：
+        FILE: 在MySQL服务器上读写文件。
+        PROCESS: 显示或杀死属于其它用户的服务线程。
+        RELOAD: 重载访问控制表,刷新日志等。
+        SHUTDOWN: 关闭MySQL服务。
+        数据库/数据表/数据列权限：
+        Alter: 修改已存在的数据表(例如增加/删除列)和索引。
+        Create: 建立新的数据库或数据表。
+        Delete: 删除表的记录。
+        Drop: 删除数据表或数据库。
+        INDEX: 建立或删除索引。
+        Insert: 增加表的记录。
+        Select: 显示/搜索表的记录。
+        Update: 修改表中已存在的记录。
+        特别的权限：
+        ALL: 允许做任何事(和root一样)。
+        USAGE: 只允许登录–其它什么也不允许做。
+        ———————
+```
+
+## MYSQL常用命令
+
+```text
+    一、连接MYSQL
+            mysql -h主机地址 -u用户名 -p用户密码
+            1、例1：连接到本机上的MYSQL
+            首先在打开DOS窗口,然后进入目录 mysqlbin,再键入命令mysql -uroot -p,回车后提示你输密码,如果刚安装好MYSQL,超级用户root是没有密码的,故直
+            接回车即可进入到MYSQL中了,MYSQL的提示符是：mysql>
+            2、例2：连接到远程主机上的MYSQL
+            假设远程主机的IP为：110.110.110.110,用户名为root,密码为abcd123。则键入以下命令：
+            mysql -h110.110.110.110 -uroot -pabcd123 (注:u与root可以不用加空格,其它也一样)
+    二、修改密码
+            mysqladmin -u用户名 -p旧密码 password 新密码
+            1、例1：给root加个密码ab12。首先在DOS下进入目录mysqlbin,然后键入以下命令
+            mysqladmin -uroot -password ab12
+            注：因为开始时root没有密码,所以-p旧密码一项就可以省略了。
+            2、例2：再将root的密码改为djg345
+            mysqladmin -uroot -pab12 password djg345
+
+
+
+    三、一个建库和建表以及插入数据的实例
+            drop database if exists school; //如果存在SCHOOL则删除
+            create database school; //建立库SCHOOL
+            use school; //打开库SCHOOL
+            create table teacher( //建立表TEACHER
+            id int(3) auto_increment not null primary key,
+            name char(10) not null,
+            address varchar(50) default ‘深圳’,
+            year date); //建表结束
+            //以下为插入字段
+            insert into teacher values(”,’glchengang’,’深圳一中’,’1976-10-10′);
+            insert into teacher values(”,’jack’,’深圳一中’,’1975-12-23′);
+            注：在建表中
+            (1)将ID设为长度为3的数字字段:int(3)并让它每个记录自动加一:auto_increment并不能为空:not null而且让他成为主字段primary key
+            (2)将NAME设为长度为10的字符字段
+            (3)将ADDRESS设为长度50的字符字段,而且缺省值为深圳。varchar和char有什么区别呢,只有等以后的文章再说了。
+            (4)将YEAR设为日期字段。
+                    如果你在mysql提示符键入上面的命令也可以,但不方便调试。你可以将以上命令原样写入一个文本文件中假设为school.sql,
+                    然后复制到c:\下,并在DOS状态进入目录\mysql\bin,然后键入以下命令：
+                    mysql -uroot -p密码 < c:\school.sql
+                    如果成功,空出一行无任何显示;如有错误,会有提示。(以上命令已经调试,你只要将//的注释去掉即可使用)。
+    四、将文本数据转到数据库中
+            1、文本数据应符合的格式：字段数据之间用tab键隔开,null值用\n来代替.例：
+            3 rose 深圳二中 1976-10-10
+            4 mike 深圳一中 1975-12-23
+            2、数据传入命令 load data local infile “文件名” into table 表名;注意：你最好将文件复制到\mysql\bin目录下,并且要先用use命令打表所在的库 。
+    五、备份数据库：(命令在DOS的\mysql\bin目录下执行)
+            mysqldump –opt school>school.bbb
+            注释:将数据库school备份到school.bbb文件,school.bbb是一个文本文件,
+            文件名任取,打开看看你会有新发现。
+```
+
+## GRANT语法
+
+```text
+    GRANT 权限 ON 数据库.* TO 用户名@'登录主机' IDENTIFIED BY '密码'
+    权限： ALL,ALTER,CREATE,DROP,SELECT,UPDATE,DELETE
+    新增用户：权限为USAGE,即为："无权限",想要创建一个没有权限的用户时,可以指定USAGE
+    数据库：
+        *.*              表示所有库的所有表
+        mylove.*         表示mylove库的所有表
+        mylove.loves     表示mylove库的loves表
+    用户名：
+        MySQL的账户名
+    登陆主机：
+        允许登陆到MySQL Server的客户端ip
+        '%'表示所有ip
+        'localhost' 表示本机
+        '10.155.123.55' 特定IP
+    密码：
+        MySQL的账户名对应的登陆密码
+```
+
+## Select语句的完整语法为
+
+```text
+        Select[ALL|DISTINCT|DISTINCTROW|TOP]
+        {*|talbe.*|[table.]field1[AS alias1][,[table.]field2[AS alias2][,…]]}
+        FROM tableexpression[,…][IN externaldatabase]
+        [Where…]
+        [GROUP BY…]
+        [HAVING…]
+        [ORDER BY…]
+        [WITH OWNERACCESS OPTION]
+        说明：用中括号([])括起来的部分表示是可选的,用大括号({})括起来的部分是表示必须从中选择其中的一个。
+        1 FROM子句
+                FROM 子句指定了Select语句中字段的来源。FROM子句后面是包含一个或多个的表
+                达式(由逗号分开),其中的表达式可为单一表名称、已保存的查询或由 INNER
+                JOIN、LEFT JOIN 或 RIGHT JOIN 得到的复合结果。如果表或查询存储在外部数据
+                库,在IN 子句之后指明其完整路径。
+                例：下列SQL语句返回所有有定单的客户：
+                Select orderID,Customer.customerID
+                FROM orders Customers
+                Where orders.CustomerID=Customers.CustomeersID
+        2 ALL、DISTINCT、DISTINCTROW、TOP谓词
+                (1) ALL 返回满足SQL语句条件的所有记录。如果没有指明这个谓词,默认为ALL。
+                例：Select ALL FirstName,LastName FROM Employees
+                (2) DISTINCT 如果有多个记录的选择字段的数据相同,只返回一个。
+                (3) DISTINCTROW 如果有重复的记录,只返回一个
+                (4) TOP显示查询头尾若干记录。也可返回记录的百分比,这是要用 TOP NPERCENT子句(其中N 表示百分比)
+                例：返回5%定货额最大的定单
+                Select TOP 5 PERCENT*
+                FROM [ order Details]
+                orDER BY UnitPrice*Quantity*(1-Discount) DESC
+        3 用 AS 子句为字段取别名
+                如果想为返回的列取一个新的标题,或者,经过对字段的计算或总结之后,产生了一个新的值,希望把它放到一个新的列里显示,则用AS保留。
+                例：返回FirstName字段取别名为NickName
+                Select FirstName AS NickName ,LastName ,City FROM Employees
+                例：返回新的一列显示库存价值
+                Select ProductName ,UnitPrice ,UnitsInStock ,UnitPrice*UnitsInStock AS valueInStock FROM Products
+```
+
+二 .Where 子句指定查询条件
+
+```text
+        1 比较运算符
+        比较运算符 含义
+        = 等于
+        > 大于
+        < 小于
+        >= 大于等于
+        <= 小于等于
+        <> 不等于
+        !> 不大于
+        !< 不小于
+
+    ALTER TABLE `department`
+    ADD CONSTRAINT `employeid` FOREIGN KEY (`id`) REFERENCES `db`.`employees` (`id`);
+```
+
+## 查看字符编码
+
+```text
+show variables like 'character%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |   # 客户端来源数据字符集
+| character_set_connection | utf8                       |   # 链接层字符集
+| character_set_database   | latin1                     |   # 当前选中数据库默认字符集
+| character_set_filesystem | binary                     |   # 当前文件系统的编码格式
+| character_set_results    | utf8                       |   # 服务器返回的编码格式
+| character_set_server     | latin1                     |   # 服务器的默认编码格式
+| character_set_system     | utf8                       |   # 数据库系统使用的编码格式
+| character_sets_dir       | /usr/share/mysql/charsets/ |   # 数据库字符集存放地址
+```
+
+## 设置字符编码
+
+```text
+    修改mysql配置文件/etc/my.cnf。
+        [mysqld]
+        character-set-server=utf8mb4
+        [client]
+        default-character-set=utf8mb4
+        [mysql]
+        default-character-set=utf8mb4
+
+    set character_set_client=utf8;
+    set global character_set_database=utf8;         // utf8mb4
+    set global character_set_server=utf8;
+```
+
+## 查看所有用户
+
+```shell
+    SELECT DISTINCT CONCAT('User: ''',user,'''@''',host,''';') AS query FROM mysql.user;
+```
+
+## 链接远程MySQL
+
+```text
+    1、开启mysql远程访问权限
+```
+
+## 修改命令提示符
+
+```shell
+    mysql -uroot -p --prompt=提示符        // 链接客户端时通过参数指定
+    prompt 提示符                          // 登陆后使用prompt命令修改
+    prompt \D                             // 使用完整的日期作为提示符
+    prompt \d                             // 使用当前数据库作为提示符
+    prompt \h                             // 使用服务器名称作为提示符
+    prompt \u                             // 使用当前用户名作为提示符
+```
+
+## 外键约束
+
+```text
+    主表就是外键约束有约束值的那个表
+    从表就是被约束的那个表
+    如果一张表中有一个非主键的字段指向另外一张表的主键，那么将该字段称之为外键。
+    每张表中，可以有多个外键。
+
+    外键约束的4种类型(主要针对于外键里的删除时和更新时)
+        RESTRICT:
+            删除时,意思是约束外键主键aid记录（主表中的记录）不能直接删除,
+            必须先删除tb_b表中a_id所有这个外键主键值对应的记录,才能删除外键约束（主表中的记录）
+        CASCADE:
+            级联删除/级联更新，即主表delete或update了被其他表引用的数据，对应子表的数据也被delte或update
+        SET NULL:
+            当主表delete或update了被其他表引用的数据，对应子表的数据被设为null，注意子表的外键不能设为not null；
+            删除时,如果从表被约束的字段的值设置为可以为空时,
+            那么当删除主表的记录时,主表中被删除的这个记录对应的主键值（约束从表字段的那个值）在从表中对应的字段中出现的那个记录的被约束字段的值就会变为NULL。
+            如果需要设置级联关系 删除时最好设置为SET NULL
+        NO ACTION:  在MySQL中，等效于RESTRICT
+        SET DEFAULT: InnoDB和NDB中无法使用该参数。
+        最常用的是选择RESTRICT不让删的这个约束、或者选择SET NULL删除后值表为空。
+    虚拟外键约束:
+        tb_b表中的a_id字段中的值是tb_a表中的主键id的值,这就是虚拟外键约束,也是目前来说比较流行使用的。
+    定义外键的条件:
+        #、外键对应的字段数据类型保持一致,且被关联的字段(即references指定的另一个表的字段) 必须保持唯一
+        #、所有表的存储引擎必须是InnoDB类型的
+
+        1.外键上无法插入主表没有的数据，也无法更新为主表没有的数据；
+        2.外键上必须要有索引，主表上对应的列最好也创建索引，因为当子表外键插入数据时，也是需要到主表对应的列上去检查数据是否存在，有索引可以提高效率；
+        3.如果一个表被其他表的外键引用，则这个表无法被删除；如果通过set foreign_key_checks=0强制删除主表，则子表无法插入任何数据；
+        4.外键的字段类型，字符集必须要跟引用的字段一致，unsigned属性也要一致，否则无法创建外键约束；
+        5.被引用的列上必须要有索引，否则无法创建外键约束。
+
+    插入数据时,先插入主表中的数据,再插入从表中的数据
+    删除数据时,先删除从表中的数据,再删除主表中的数据
+```
+
+## Exception
+
+### java.sql.SQLException: Access denied for user 'root'@'Power' (using password: YES)
+
+### "this is incompatible with sql_mode=only_full_group_by"
+
+```text
+    原因: mysql 5.7 版本及以上版本会出现的问题
+        输出的结果是叫target list(select后面跟着的字段)，还有一个地方group by column(group by后面跟着的字段)
+        开启ONLY_FULL_GROUP_BY设置后，所以如果一个字段没有在target list和group by字段中同时出现，或者是聚合函数的值的话，则这条sql查询是被mysql认为非法
+    解决:
+        修改mysql配置文件，通过手动添加sql_mode的方式强制指定不需要ONLY_FULL_GROUP_BY属性，
+        vim /etc/my.cnf
+        在 [mysqld] 下面添加代码：
+        sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+        sql_mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+        重启mysql
+
+
+    STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+    STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+```
+
+### `/var/lib/mysql/mysql.sock` lost
+
+```text
+    mysql.sock是在MySQL启动的时候自动创建，停止后自动删除
+```
+
+## 数据存储位置
+
+```text
+    mac
+        mysql> SHOW VARIABLES LIKE 'data%'
+        /usr/local/var/mysql/
+    linux
+        /var/lib/mysql/
+```
+
+## mysql启动、停止、重启指令
+
+```shell
+
+    sudo /usr/local/mysql/support-files/mysql.server start
+    sudo /usr/local/mysql/support-files/mysql.server stop
+    sudo /usr/local/mysql/support-files/mysql.server restart
+
+```

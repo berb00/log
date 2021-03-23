@@ -1,0 +1,29 @@
+
+## OSS
+
+```text
+    RAM访问控制子用户
+        AdministratorAccess
+        oss-cn-shanghai
+        UserPrincipalName   phoenix@1927622632901751.onaliyun.com
+        Password            R?!qPW3BJYPeUcbrCh6mk92(sXcE}aaN
+        AccessKeyId         LTAI4GCSRZt8uv2rCM5W1nHz
+        AccessKeySecret     FG1mjMUiQl4Ngi85QOWtmVvrRBHKGH
+```
+
+
+    #  com.phoenix.flutter_app private_policy.html
+    server {
+        listen        9000;
+        server_name  localhost;
+
+        location / {
+            root   /var/lib/Project/flutter_app;
+            index  private_policy.html;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /var/lib/Project/flutter_app;
+        }
+    }

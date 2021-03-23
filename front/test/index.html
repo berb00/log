@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        fdsfsdf
+    </div>
+    <input type="text">
+    <script src="./circular-json.js"></script>
+    <script>
+        document.onselectstart = function (params) {
+            console.log('onselectstart', params)
+            return false
+        }
+        document.onselect = function (params) {
+            console.log('onselect', params)
+            return false
+        }
+        // var win = CircularJSON.stringify(window)
+        // console.clear()
+        // console.log(win)
+
+    </script>
+</body>
+</html>

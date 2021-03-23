@@ -1,0 +1,270 @@
+# go note
+
+## go install
+
+```sh
+
+    wget https://golang.google.cn/dl/go1.16.1.linux-amd64.tar.gz
+
+    rm -rf /usr/local/go && tar -C /usr/local -xzf go1.16.1.linux-amd64.tar.gz
+
+    export PATH=$PATH:/usr/local/go/bin
+
+    go version
+
+```
+
+## go env
+
+```shell
+    GO111MODULE=""          # 开启或关闭模块支持
+    GO111MODULE=off         # 无模块支持，go 会从 GOPATH 和 vendor 文件夹寻找包。
+    GO111MODULE=on          # 模块支持，go 会忽略 GOPATH 和 vendor 文件夹，只根据 go.mod 下载依赖。
+    GO111MODULE=auto        # 在 $GOPATH/src 外面且根目录有 go.mod 文件时，开启模块支持。
+
+    GOBIN=""                # 编译器和链接器的安装位置 go install编译存放路径  一般为为GOPATH/bin
+    GOCACHE="/Users/berb00/Library/Caches/go-build"    # 为go build下次使用的缓存
+    GOMODCACHE=""                                      # go mod模块缓存
+    GODEBUG=""                                         # 是否开启各种调试设施
+    GOENV="/Users/berb00/Library/Application Support/go/env"    # go environment环境配置文件 不能用go env -w设置
+    GOEXE=""
+    GOFLAGS=""
+    GOHOSTARCH="amd64"
+    GOHOSTOS="darwin"
+    GOINSECURE=""
+    GONOPROXY=""
+    GONOSUMDB=""
+    
+    GOPATH="/Users/berb00/go"                           # GOPATH 不能指向GOROOT
+    GOROOT="/usr/local/Cellar/go/1.14.3/libexec"        # golang 的安装路径
+    GOPRIVATE=""
+    GOPROXY="https://proxy.golang.org,direct"
+    GOSUMDB="sum.golang.org"
+    GOTMPDIR=""
+    GOTOOLDIR="/usr/local/Cellar/go/1.14.3/libexec/pkg/tool/darwin_amd64"
+    GCCGO="gccgo"
+    AR="ar"
+    CC="clang"
+    CXX="clang++"
+    GOARCH="amd64"                  # 目标可执行程序操作系统构架，包括 386/amd64/arm 
+    GOOS="darwin"                   # 目标可执行程序运行操作系统，支持 darwin/freebsd/linux/windows 
+    CGO_ENABLED="1"                 # 
+    GOMOD=""
+    CGO_CFLAGS="-g -O2"
+    CGO_CPPFLAGS=""
+    CGO_CXXFLAGS="-g -O2"
+    CGO_FFLAGS="-g -O2"
+    CGO_LDFLAGS="-g -O2"
+    PKG_CONFIG="pkg-config"
+    GOGCCFLAGS="-fPIC -m64 -pthread -fno-caret-diagnostics -Qunused-arguments-fmessage-length=0 -fdebug-prefix-map=/var/folders/yk/c_jbx6rn0q74t943jd8kg9xh0000gn/T/go-build111615607=/tmp/go-build -gno-record-gcc-switches -fno-common"
+
+    修改go环境变量
+        go env -w GO111MODULE=on
+
+    GO111MODULE=off 无模块支持，go 会从 GOPATH 和 vendor 文件夹寻找包。
+    GO111MODULE=on 模块支持，go 会忽略 GOPATH 和 vendor 文件夹，只根据 go.mod 下载依赖。
+    GO111MODULE=auto 在 $GOPATH/src 外面且根目录有 go.mod 文件时，开启模块支持。
+    在使用模块的时候，GOPATH 是无意义的，不过它还是会把下载的依赖储存在 $GOPATH/src/mod 中，也会把 go install 的结果放在 $GOPATH/bin 中。
+
+    修改环境变量:
+        windows:    set GO111MODULE=on
+    go代理镜像:
+        官方： < 全球 CDN 加速 https://goproxy.io/>
+        七牛：Goproxy 中国 https://goproxy.cn
+        其他：jfrog 维护 https://gocenter.io
+        阿里： https://mirrors.aliyun.com/goproxy/
+
+        export GOPROXY=https://mirrors.aliyun.com/goproxy/
+
+
+```
+
+## 交叉编译(跨平台编译)
+
+```shell
+    set CGO_ENABLED=0       // 禁用CGO  交叉编译不支持CGO
+    set GOOS=linux          // 设置目标平台操作系统 darwin、freebsd、linux、windows
+    set GOARCH=amd64        // 设置目标处理器架构   386、amd64、arm
+
+    Mac 下编译 Linux 和 Windows 64位可执行程序
+        CGO_ENABLED=0
+        GOOS=linux
+        GOARCH=amd64
+        go build main.go
+
+        CGO_ENABLED=0
+        GOOS=windows
+        GOARCH=amd64
+        go build main.go
+    Linux 下编译 Mac 和 Windows 64位可执行程序
+        CGO_ENABLED=0
+        GOOS=darwin
+        GOARCH=amd64
+        go build main.go
+
+        CGO_ENABLED=0
+        GOOS=windows
+        GOARCH=amd64
+        go build main.go
+
+    Windows 下编译 Mac 和 Linux 64位可执行程序
+        SET CGO_ENABLED=0
+        SET GOOS=darwin
+        SET GOARCH=amd64
+        go build main.go
+
+        SET CGO_ENABLED=0
+        SET GOOS=linux
+        SET GOARCH=amd64
+        go build main.go
+```
+
+## 关键字25个
+
+```shell
+    import      package
+    func        return
+    struct      interface
+    if          else
+    switch      case
+    const       var
+    continue    break default
+    for
+
+
+    select
+    defer
+    go
+    map
+    chan
+    goto
+    type
+    fallthrough         如果case带有fallthrough，程序会继续执行下一条case,不会再判断下一条case的值
+    range               从slice、map等结构中取元素
+
+```
+
+## 保留字
+
+```text
+    constants:
+        true        false       nil         iota
+    types:
+        bool
+        byte
+        string
+        int         uint
+        int8        uint8
+        int16       uint16
+        int32       uint32
+        int64       uint64
+        float32     float64
+        complex64   complex128
+        error
+        rune        // int32的别名，几乎在所有方面等同于int32   它用来区分字符值和整数值
+        uintptr     // 无符号整型，用于存放一个指针
+    functions:
+        len
+        make
+        new
+        cap
+        append
+        copy
+        close
+        delete
+        panic
+        recover
+        complex
+        imag
+        real
+
+```
+
+## go mod
+
+```text
+    Module 是多个 package 的集合，仓库版本管理的基本单元，使用 go.mod 文件记录依赖的 module。
+    在使用go mod的时候，本地包就不能使用相对路径来引用了，需要使用module名字作为前缀，即go mod init 时指定的module名字
+```
+
+## Tips
+
+```text
+
+    #、格式化所有go文件代码格式
+        find ./ -name "*.go" | xargs gofmt -w
+
+```
+
+## 引用第三方包
+
+```text
+    1、
+        直接在包内引入第三方包路径
+        go run main.go 直接下载
+    2、 全局保存
+        go get -u -v github.com/kardianos/govendor
+
+
+
+
+
+
+
+```
+
+## 打包部署
+
+```text
+后台运行go nohup ./main &
+
+```
+
+## project catalog
+
+```text
+go.mod 该文件的出现定义了它所在的目录为一个模块
+go.sum 记录所依赖的项目的版本的锁定。
+
+```
+
+## error
+
+```text
+    package chain/block is not in GOROOT?
+
+    解决Git :fatal: refusing to merge unrelated histories(两个分支是两个不同的版本，具有不同的提交历史)
+        git pull origin master --allow-unrelated-histories
+
+```
+
+## Other
+
+```text
+    golang可以在函数定义的时候确定其返回值具体为 func foo(arg int)(res int){}go env GOPATH 可以用来去查看当前的GOPATHgolang 查找问题, 可以根据Gogland和ack工具一起结合查找golang中的init函数用来初始化一些变量, 它总是会被运行, 只要导入了这个包, 初始化就会在run main之前被运行golang中的接口类型, 以接口类型传入参数, 如果该接口类型, 实现了方法则okproto.String() 是一个helper方法, 分配一个新的空间, 并返回一个指向它的指针golang中首字母大写表示public, 首字母小写则表示protect 或者 privategolang中defer语句的执行顺序为逆序golang中有时候为了诊断方便, 可以使用printStack即runtime.Stack(buf[:], false)io.Writer是golang中接口类型的一种典型的运用, Fprintf=>(Printf, SPrintf)Stringer接口通常用于对于printf或者println等一些列的函数数输出golang中的数组array为定长数组, 如两个数组相比较必须是comparable即长度和类型必须一致golang语言定义变量或者结构体在编译期就已经复制, 在运行期赋值, 需要重新定义一个函数golang中flag库需要使用flag.parse()来传递参数buffer channel在channel中的元素个数小于channel size时为非阻塞的, 达到channel size之后则阻塞当前线程直到元素被取出.0 buff channel即为sync channel. 生产者和消费者都会被阻塞.golang中对比并行程序设计有: 设置返回channel, 以经典的生产者消费者模式进行处理.timer主要是用来设置定时任务, tickers主要是用来设置周期任务.使用sync.Mutex通过对全局变量的Lock和UnLock实现atomic加锁和解锁对于Atomic inc也可以使用sync/atomic库实现.CAS: Compare And Swap比较并交换, 在golang中是以共享内存方式实现的一种同步机制.Share memory by communicating; don't communicate by sharing memory. golang中更好的一种方式是通过sync包以及channel来实现同步机制. time.Sleep vs time.After
+        time.After通常于select搭配使用, 可以设置超时机制time.Sleep可读性更强, 暂停当前Goroutine, 直到达到时间.timer 通过AfterFunc或NewTimer来创建, 使用Reset来重置, timer. 使用Stop来停止timer, 停止timer之后, 相应的goroutine会被阻塞.timer 使用时, 如果使用了timer.Stop(), 则timer, 会被GC所回收, 但是timer对应的channel不会关闭, 则channel将会被永远的阻塞.timer.Stop对应的timer被GC所回收, timer.C被阻塞, 如果再使用timer.Reset,则重新给timer对应的时间赋值并放入timer.C中timer 使用的正确姿势是, 使用timer.Reset, 而不是使用timer.Stop. 如果使用指针并且使用对应的timer.Channel. 重置timer时, 应当使用Reset而不是重新Stop+NewTimer来重置, 这样会导致内存泄漏, 阻塞goroutinedeadlock死锁: 多个线程占有一部分资源, 去请求另一部分资源时阻塞. 这些线程等等其他的线程释放资源. (已请求到锁)livelock:活锁, 不断请求锁, 但是无法请求到资源. (未加锁)select与channel搭配使用, 如果要实现类似listener的模式, 则需要在外层加for {select ...}.通常使用select实现函数超时机制.HTTP keep-alive是保持TCP连接open, 即复用TCP连接的一种手段. 例如: 通过HTTP keep-alive就可以实现不用每次都去重新建立HTTP连接, 这样就不会重新去请求静态资源css,html等.TCP keep-alive是TCP协议定时地发送空的ack包来确认彼此的状态. TCP keep-alive和HTTP keep-alive是两个不同的技术, 不存在谁依赖谁的关系. TCP keep-alive用来检测对端是否存在, 而HTTP keep-alive用来协商以复用连接.context上下文类型,带有deadline，取消信号，还有其他与请求相关的request-scoped的值context遵循的几个原则：
+        不要将Context放入结构体，使用Context应该作为第一个参数传入，并命名为ctx,func DoSomething(ctx context.Context, arg Arg) error {//use ctx}即使函数允许，不要传入nil的Context.如果不知道用哪种Context，使用context.TODO()使用context的Value相关的方法只应该用于在程序和接口中传递和请求相关元数据，不要用它传递可选参数相同的Context可以传递给不同的goroutine， Context并发安全sync.Map go1.9支持的线程安全的map，通过cas实现reflect: go语言反射机制。reflact反射是一种机制，这种机制可以实现自我类型的检查和描述init函数在main函数之前执行，通常用作初始化sync.Once保证程序仅仅执行一次actionpanic类似于抛出异常，即停止当前正确的程序流程, panic之后会执行defer函数recover类似于恢复异常，即panic会一直向上抛出阻碍正常流程，直到recover则恢复具体的某个golang对象初始化时候，通常的一种写法是通过OptionFunc来初始化一些可选参数// +build:是golang的build tag 例如// +build linux,386 darwin,!cgo 等价于(linux AND 386) OR (darwin AND (NOT cgo))go build -tags="linux 386"进行编译, 并根据Build Constraints的条件进行编译golang make初始化并分配内存golang %#v与%+v 为打印变量并打印其变量名value receiver 和 pointer receiver
+        value receiver是并发安全的, 且不改变value本身的值, copy by valuepointer receiver 不是并发安全的，且可以改变pointer本身的值golang elastic 使用Scorll可以滚动的获取所有请求的结果dep 为官网golang包管理工具dep init : 效率较低，初始化golang项目的独立环境，利用gps分析出当前代码包中的依赖关系，并将其约束写入项目中的，Gopkg.toml文件中。将所有依赖的包最新的version/branch/revision信息写入Gopkg.lock，创建vendor目录，并以Gopkg.lock为输入，将其中包下载到vendor目录下面。dep status: 查看当前项目下的status的状态dep ensure : 确保当前项目的vendor处于一个正确的状态gorilla/mux : golang 非常受欢迎的URL router dispatcher
+    goconvey : golang 带UI的单元测试框架，可以很好的显示单元覆盖度ACL: access control list 访问控制列表，是路由器和交换机接口的指令，用于控制端口进出的数据包，ACL提供了网络安全访问的基本手段。map[string]*person{} 与 map[string]person{}的区别在于指针和实例，实例为重新copy构造，改变内容之后，不改变map本身的内容, 末尾的{}为初始化mapOLAP: Online Analytical Processing: 在线数据处理关注于数据分析，OLTP: Online Transaction Processing 在线事务处理，类似于增删查改，专注于查询的速度一致性hash，为了解决弹性集群动态扩容的问题，通常的做法是构造0~2^32-1个hash环状空间，对于具体的某个key找到对应服务器上节点时，只需要顺序在环上转动找到第一个命中的节点即可。当出现负载不均的情况时，可以考虑使用引入虚拟节点达到负载均衡的效果。GC: Garbage collection 垃圾回收机制，常见的垃圾回收算法有: 引用计数，标记清除Mark-Sweep法，三色标记法，分代收集法。引用计数：最基础的垃圾回收算法，例如C++中的std:shared_ptr标记清除：分为两个步骤：1. Mark: 从程序的根节点开始，遍历所有的对象，对可达的节点进行标记。2. Sweep: 将所有未标记的节点对象作为垃圾进行回收清除操作。有一个问题是会有STW(Stop The World)的问题，算法进行标记时会暂停整个应用程序。当程序中的对象特别多时，遍历整个对象树会消耗很多的时间。go1.3三色标记：是Mark-Sweep的一个改进，支持并发，即可以实现on-the-fly即在程序执行的同时进行垃圾回收 go1.6. 步骤如下：
+
+    ​
+    1. 首先创建三个集合：白、灰、黑。
+    2. 将所有对象放入白色集合中。
+    3. 然后从根节点开始遍历所有对象（注意这里**并不递归遍历**），把遍历到的对象从白色集合放入灰色集合。
+    4. 之后遍历灰色集合，将灰色对象引用的对象从白色集合放入灰色集合，之后将此灰色对象放入黑色集合
+    5. 重复 4 直到灰色中无任何对象
+    6. 通过write-barrier检测对象有变化，重复以上操作
+    7. 集所有白色对象（垃圾）
+
+        分代收集：也是Mark-Sweep的一个改进。该算法基于一个经验：绝大多数的对象生命周期都很短，按照对象生命周期的长短来分代。
+
+    一般分代GC，分为3代，新生代（Young Generation），年老代（Tenured Generation），永久代（Permanent Generation）
+    原理如下：
+    ​
+    1. 新对象放入第 0 代
+    2. 当内存用量超过一个较小的阈值时，触发 0 代收集
+    3. 第 0 代幸存的对象（未被收集）放入第 1 代
+    4. 只有当内存用量超过一个较高的阈值时，才会触发 1 代收集，2 代同理
+    因为 0 代中的对象十分少，所以每次收集时遍历都会非常快（比 1 代收集快几个数量级）。只有内存消耗过于大的时候才会触发较慢的 1 代和 2 代收集。
+
+```

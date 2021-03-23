@@ -1,0 +1,102 @@
+
+-:插件
+
+function
+    基础类
+        Pixel: function () {}            像素坐标，确定地图上的一个像素点。
+        Size: function () {}             地物对象的像素尺寸
+        LngLat: function () {}           地理坐标类                  latitude纬度,longitude经度
+        Bounds: function () {}           地物对象的经纬度矩形范围
+    地图
+        Map: ƒ c(el/elId, opts) 构造一个地图对象
+        View2D: ƒ c(opts)       构造一个二维地图显示视口对象
+        ArrayBounds: function () {}      经纬度路径边界。描述地图当前视口的边界范围，它使用一组经纬度路径来表述一个闭合的区域边界
+    3D地图
+    事件
+    图层
+        TileLayer: function () {}
+        TileLayer.Satellite     卫星图层类，继承自TileLayer 
+        TileLayer.RoadNet 	    路网图层类，继承自TileLayer 
+        TileLayer.Traffic 	    实时交通图层类，继承自TileLayer 
+        Buildings: function () {}        楼块图层，独立显示矢量楼块数据的一种图层 
+        MassMarks: function () {}        图海量麻点图层类
+        LayerGroup: function () {}       图层集合，用来包装其它图层类的实例并对集合做批量操作
+        LabelsLayer: function () {}      标注图层，用于添加 LabelMarker 类型标注
+        -Heatmap                热力图插件
+    自建图层
+        TileLayer.Flexible      自定义切片图层，即可灵活自定义切片内容的栅格图层，继承自AMap.TileLayer
+        ImageLayer: function () {}       图片图层，可将图片叠加在地图的对应区域
+        CanvasLayer: function () {}	    Canvas图层，可将Canvas叠加在地图的对应区域
+        VideoLayer: function () {}       Video图层，可将视频叠加在地图的对应区域
+        CustomLayer: function () {}      完全自定义绘制的图层
+    WMS/WMTS
+        TileLayer.WMS           用于加载OGC标准的WMS图层
+        TileLayer.WMTS          用于加载OGC标准的WMTS图层
+    覆盖物
+        Marker: function () {}           点标记
+        Icon: function () {}             图标类，用于作为Marker的icon属性
+        Text: function () {}             纯文本标记
+        Polyline: function () {}         覆盖物>折线 
+        Polygon: function () {}          覆盖物>多边形 
+        Circle: function () {}           覆盖物>圆 
+        CircleMarker: function () {}     覆盖物>圆点标记 
+        Ellipse: function () {}          覆盖物>椭圆 
+        Rectangle: function () {}        覆盖物>矩形 
+        OverlayGroup: function () {}     覆盖物集合
+        GeoJSON: function () {}          GeoJSON用于实现GeoJSON和OverlayGroup的相互转化
+        GroundImage: function () {}      图片覆盖物
+        LabelMarker: function () {}      标注
+        -ElasticMarker 	        灵活点标记，一种可以随着级别改变图标和大小的点标记 
+    信息窗体
+        InfoWindow: function () {}           信息窗体
+        -AdvancedInfoWindow         高级信息窗体，在普通信息窗体的基础上，整合了POI搜索和多种路径规划的功能
+    坐标与地址
+        -Geocoder                    地理编码与逆地理编码服务，用于地址描述与坐标间的相互转换
+        convertFrom: ƒ (a,b,c)      坐标转换接口，支持将坐标点从其他坐标系转换为高德坐标系
+    搜索服务
+    路径规划
+    轨迹纠偏
+    室内地图
+    地图控件
+    定位
+    数学计算库
+    基础库
+    工具类
+    云图
+    其他服务
+    错误信息列表 
+
+
+
+
+    BezierCurve: function () {}
+    Class: function () {}
+    CompositeLayer: function () {}
+    ContextMenu: function () {}
+    DistrictSearch: function () {}
+    GLCustomLayer: function () {}
+    IndoorMap: function () {}
+    MarkerShape: function () {}
+    Panorama: function () {}
+    PanoramaMarker: function () {}
+    PixelBounds: function () {}
+    VectorLayer: function () {}
+    convertFrom: ƒ (a,b,c)
+    plugin: ƒ (a,b)
+    service: ƒ (a,b)
+
+    Browser: {}             当前浏览器的一些信息
+    DomUtil: {}             DOM相关的库函数集合
+    GeometryUtil: {}        数学计算库
+    PlaneGeometryUtil: {}
+    Util: {}                常用库函数集合
+
+    BuryPoint: {}
+    Http: {}
+    UA: {}                  User Agent
+    User: {key: "e3a269612ee8231d18c8865f6ed9d68e"}
+    event: {}
+    CANVAS: "canvas"
+    DOM: "dom"
+    ImageMarker: undefined
+    v: "1.4.15"

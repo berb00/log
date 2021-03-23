@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script src="https://cdn.bootcdn.net/ajax/libs/es6-promise/2.1.0/es6-promise.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/fetch/0.1.0/fetch.js"></script>
+
+    <script>
+        /*
+        JS可以表示的最大整数: 16位
+        MAX_SAFE_INTEGER 是一个值为 9007199254740991的常量。
+        因为Javascript的数字存储使用了IEEE 754中规定的双精度浮点数数据类型，
+        而这一数据类型能够安全存储 -(253 - 1) 到 253 - 1 之间的数值（包含边界值）
+        
+        */
+        // fetch方式请求
+        function fetchData(obj, url) {
+            const promise = new Promise(function (resolve, reject) {
+                var headers = new Headers()
+                var params = new URLSearchParams();
+                headers.append('Content-Type', 'application/x-www-form-urlencoded')
+                headers.append('Authorization', USER_TOKEN)
+                var keys = Object.keys(obj)
+                for (var i = 0; i < keys.length; i++) {
+                    var key = keys[i]
+                    params.append(key, obj[key])
+                }
+                var config = { method: 'POST', headers: headers, body: params }
+
+                fetch(url, config).then(res => res.text()).then(text => {
+                    function numberToString (match) {
+                        return `:"${match.substring(1, match.length - 1)}",`
+                    }
+                    const responseJson = JSON.parse(text.replace(/:\d{15,100},/g, numberToString))
+                    resolve(responseJson)
+                })
+            })
+            return promise
+        };
+        
+        // $.ajax方式请求
+        // $.ajaxSetup({
+        //     dataFilter: function (params) {
+        //         function numberToString (match) {
+        //         return `:"${match.substring(1, match.length - 1)}",`
+        //         }
+        //         var responseJson = params.replace(/:\d{16,100},/g, numberToString)
+        //         return responseJson
+        //     },
+        // });
+    </script>
+</body>
+</html>

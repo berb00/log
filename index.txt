@@ -1,0 +1,4 @@
+https://phoenix-public.oss-cn-shanghai.aliyuncs.com/app_package/flutter_app/app-release-1.0.0.apk
+
+
+ic_launcher
